@@ -22,13 +22,12 @@ static uint64
 sys_poweroff(void)
 {
   printf("Powering off...\n");
-  (*(volatile uint32 *) 0x100000) = 0x5555;
+  (*(volatile uint32 *)0x100000) = 0x5555;
   panic("sys_poweroff");
 }
 
 // Fetch the uint64 at addr from the current process.
-int
-fetchaddr(uint64 addr, uint64 *ip)
+int fetchaddr(uint64 addr, uint64 *ip)
 {
   struct proc *p = myproc();
   if (addr >= p->sz ||
@@ -41,8 +40,7 @@ fetchaddr(uint64 addr, uint64 *ip)
 
 // Fetch the nul-terminated string at addr from the current process.
 // Returns length of string, not including nul, or -1 for error.
-int
-fetchstr(uint64 addr, char *buf, int max)
+int fetchstr(uint64 addr, char *buf, int max)
 {
   struct proc *p = myproc();
   if (copyinstr(p->pagetable, buf, addr, max) < 0)
@@ -54,7 +52,8 @@ static uint64
 argraw(int n)
 {
   struct proc *p = myproc();
-  switch (n) {
+  switch (n)
+  {
   case 0:
     return p->trapframe->a0;
   case 1:
@@ -73,8 +72,7 @@ argraw(int n)
 }
 
 // Fetch the nth 32-bit system call argument.
-void
-argint(int n, int *ip)
+void argint(int n, int *ip)
 {
   *ip = argraw(n);
 }
@@ -82,8 +80,7 @@ argint(int n, int *ip)
 // Retrieve an argument as a pointer.
 // Doesn't check for legality, since
 // copyin/copyout will do that.
-void
-argaddr(int n, uint64 *ip)
+void argaddr(int n, uint64 *ip)
 {
   *ip = argraw(n);
 }
@@ -91,8 +88,7 @@ argaddr(int n, uint64 *ip)
 // Fetch the nth word-sized system call argument as a null-terminated string.
 // Copies into buf, at most max.
 // Returns string length if OK (not including nul), -1 if error.
-int
-argstr(int n, char *buf, int max)
+int argstr(int n, char *buf, int max)
 {
   uint64 addr;
   argaddr(n, &addr);
@@ -122,11 +118,12 @@ extern uint64 sys_link(void);
 extern uint64 sys_mkdir(void);
 extern uint64 sys_close(void);
 extern uint64 sys_getallprocs(void);
+extern uint64 sys_getmemstats(void);
 
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
 static uint64 (*syscalls[])(void) = {
-  // clang-format off
+    // clang-format off
   [SYS_fork]    sys_fork,
   [SYS_exit]    sys_exit,
   [SYS_wait]    sys_wait,
@@ -149,22 +146,25 @@ static uint64 (*syscalls[])(void) = {
   [SYS_mkdir]   sys_mkdir,
   [SYS_close]   sys_close,
   [SYS_poweroff] sys_poweroff,
-  [SYS_getallprocs] sys_getallprocs
-  // clang-format on
+  [SYS_getallprocs] sys_getallprocs,
+  [SYS_getmemstats] sys_getmemstats,
+    // clang-format on
 };
 
-void
-syscall(void)
+void syscall(void)
 {
   int num;
   struct proc *p = myproc();
 
   num = p->trapframe->a7;
-  if (num > 0 && num < NELEM(syscalls) && syscalls[num]) {
+  if (num > 0 && num < NELEM(syscalls) && syscalls[num])
+  {
     // Use num to lookup the system call function for num, call it,
     // and store its return value in p->trapframe->a0
     p->trapframe->a0 = syscalls[num]();
-  } else {
+  }
+  else
+  {
     printf("%d %s: unknown sys call %d\n", p->pid, p->name, num);
     p->trapframe->a0 = -1;
   }

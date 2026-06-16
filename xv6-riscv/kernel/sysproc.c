@@ -6,6 +6,13 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "vm.h"
+#include "dto/u_proc.h"
+
+uint64 read_disk_counter = 0;
+uint64 write_disk_counter = 0;
+uint64 read_cache_counter = 0;
+uint64 write_cahce_counter = 0;
+uint64 read_cache_hit_counter = 0;
 
 uint64 sys_exit(void)
 {
@@ -117,4 +124,33 @@ sys_getallprocs(void)
     argint(1, &max);
 
     return kernel_getallprocs(user_buf, max);
+}
+
+uint64
+sys_getmemstats(void)
+{
+    uint64 user_struct_addr;
+    struct u_memmory kernel_stats;
+
+    // Retrieve the pointer address passed from user space
+    argaddr(0, &user_struct_addr);
+
+    // 1. Populate the counters you implemented
+    kernel_stats.read_disk_counter = read_disk_counter;
+    kernel_stats.write_disk_counter = write_disk_counter;
+    kernel_stats.read_cache_counter = read_cache_counter;
+    kernel_stats.write_cache_counter = write_cahce_counter;
+    kernel_stats.read_cache_hit_counter = read_cache_hit_counter;
+
+    // 2. Compute dynamic subsystem space sizes
+    // TODO: totoal sizes (Ram=128M / Cache = ? / Disk = ?)
+    kernel_stats.free_ram = count_free_ram();
+    kernel_stats.free_cache = count_free_cache();
+    kernel_stats.free_disk = count_free_disk();
+
+    // 3. Securely write kernel structure details into User virtual space
+    if (copyout(myproc()->pagetable, user_struct_addr, (char *)&kernel_stats, sizeof(kernel_stats)) < 0)
+        return -1;
+
+    return 0;
 }

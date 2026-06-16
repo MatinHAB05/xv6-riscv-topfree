@@ -27,6 +27,7 @@ int pause(int);
 int uptime(void);
 void poweroff(void);
 int getallprocs(struct u_proc *buf, int max);
+int getmemstats(struct u_memmory *membuf);
 
 // ulib.c
 int stat(const char *, struct stat *);

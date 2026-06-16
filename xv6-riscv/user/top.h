@@ -37,3 +37,6 @@ void format_time(long ticks, char opt, char *buf);
 
 void sort_processes(struct u_proc *p, int n, char sort_opt);
 void print_help(void);
+
+void print_size(long bytes);
+void print_percentage(long part, long total);

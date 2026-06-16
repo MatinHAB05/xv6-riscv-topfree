@@ -1,13 +1,14 @@
-// TODO: arg options!
-// TODO: memeory K/M/G/%
-// TODO: cpu ticks/Second/%
-// TODO: pause time arg(fornow it is 100ms scale!)
-// TODO: Sort Option
-// TODO: one-view data in header(#running proccess / #process / uptime /  )
-// TODO: read_timeout for q (quit)
+//  TODO: arg options!
+//  TODO: memeory K/M/G/%
+//  TODO: cpu ticks/Second/%
+//  TODO: pause time arg(fornow it is 100ms scale!)
+//  TODO: Sort Option
+//  TODO: one-view data in header(#running proccess / #process / uptime /  )
+//  TODO: read_timeout for q (quit)
 
 #include "user/top.h"
 
+struct u_memmory umemstat;
 struct u_proc procs[64];
 
 // TODO: Quit on 'q' Handler
@@ -43,8 +44,13 @@ void parse_args(int argc, char *argv[], struct top_config *cfg)
                 cfg->cpu_opt = 't';
             else if (strcmp(argv[i], "s") == 0)
                 cfg->cpu_opt = 's';
-            else
+            else if (strcmp(argv[i], "p") == 0)
                 cfg->cpu_opt = 'p';
+            else
+            {
+                printf("[INVALID VALUE FOR --cpu]: '%s' (Valid: t, s, p)\n", argv[i]);
+                flag = -97;
+            }
         }
         else if (strcmp(argv[i], "--mem") == 0 && i + 1 < argc)
         {
@@ -55,8 +61,13 @@ void parse_args(int argc, char *argv[], struct top_config *cfg)
                 cfg->mem_opt = 'M';
             else if (strcmp(argv[i], "G") == 0)
                 cfg->mem_opt = 'G';
-            else
+            else if (strcmp(argv[i], "p") == 0)
                 cfg->mem_opt = 'p';
+            else
+            {
+                printf("[INVALID VALUE FOR --mem]: '%s' (Valid: K, M, G, p)\n", argv[i]);
+                flag = -97;
+            }
         }
         else if (strcmp(argv[i], "--sort") == 0 && i + 1 < argc)
         {
@@ -71,6 +82,11 @@ void parse_args(int argc, char *argv[], struct top_config *cfg)
                 cfg->sort_opt = 'p';
             else if (strcmp(argv[i], "ppid") == 0)
                 cfg->sort_opt = 'i';
+            else
+            {
+                printf("[INVALID VALUE FOR --sort]: '%s' (Valid: cpu, mem, time, pid, ppid)\n", argv[i]);
+                flag = -97;
+            }
         }
         else if (strcmp(argv[i], "--time") == 0 && i + 1 < argc)
         {
@@ -79,8 +95,13 @@ void parse_args(int argc, char *argv[], struct top_config *cfg)
                 cfg->time_opt = 'M';
             else if (strcmp(argv[i], "m") == 0)
                 cfg->time_opt = 'm';
-            else
+            else if (strcmp(argv[i], "s") == 0)
                 cfg->time_opt = 's';
+            else
+            {
+                printf("[INVALID VALUE FOR --time]: '%s' (Valid: min, m, s)\n", argv[i]);
+                flag = -97;
+            }
         }
         else if (strcmp(argv[i], "--pause") == 0 && i + 1 < argc)
         {
@@ -95,16 +116,22 @@ void parse_args(int argc, char *argv[], struct top_config *cfg)
                 cfg->pause_unit = 's';
             else if (strcmp(argv[i], "m") == 0)
                 cfg->pause_unit = 'm';
+            else
+            {
+                printf("[INVALID VALUE FOR --unit_pause]: '%s' (Valid: min, s, m)\n", argv[i]);
+                flag = -97;
+            }
         }
         else
         {
-            printf("[INVALID ARG] : %s\n", argv[i]);
+            printf("[INVALID FLAG]: '%s'\n", argv[i]);
             flag = -97;
         }
     }
 
     if (flag < 0)
     {
+        printf("Use '--help' or '-h' to see the usage dictionary...\n");
         exit(-1);
     }
 }
@@ -142,6 +169,8 @@ int main(int argc, char *argv[])
     {
         printf("\033[2J\033[H");
 
+        int mem_stats_ok = (getmemstats(&umemstat) == 0);
+
         int n = getallprocs(procs, 64);
         if (n < 0)
         {
@@ -164,6 +193,41 @@ int main(int argc, char *argv[])
         printf("========================================================================================================\n");
         printf(" System Uptime: %d.%ds | Total Processes: %d | Running Processes: %d\n",
                (up_ticks / 10), up_ticks % 10, n, running_count);
+
+        if (mem_stats_ok)
+        {
+            long total_disk = umemstat.read_disk_counter + umemstat.write_disk_counter;
+            long total_cache = umemstat.read_cache_counter + umemstat.write_cache_counter;
+
+            printf(" RAM Free: ");
+            print_size(umemstat.free_ram);
+            printf(" | Cache Free: ");
+            print_size(umemstat.free_cache);
+            printf(" | Disk Free: ");
+            print_size(umemstat.free_disk);
+            printf("\n");
+
+            printf(" Disk Reads: %d (", (int)umemstat.read_disk_counter);
+            print_percentage(umemstat.read_disk_counter, total_disk);
+            printf(") | Writes: %d (", (int)umemstat.write_disk_counter);
+            print_percentage(umemstat.write_disk_counter, total_disk);
+            printf(")\n");
+
+            printf(" Cache Reads: %d (", (int)umemstat.read_cache_counter);
+            print_percentage(umemstat.read_cache_counter, total_cache);
+            printf(") | Writes: %d (", (int)umemstat.write_cache_counter);
+            print_percentage(umemstat.write_cache_counter, total_cache);
+            printf(")\n");
+
+            printf(" Cache Hit Rate: ");
+            print_percentage(umemstat.read_cache_hit_counter, umemstat.read_cache_counter);
+            printf(" (Hits: %d)\n", (int)umemstat.read_cache_hit_counter);
+        }
+        else
+        {
+            printf(" [MEMSTAT ERROR]: Could not fetch memory, cache, and disk stats from kernel!\n");
+        }
+
         printf("========================================================================================================\n\n");
 
         print_padded("PID", PID_WIDTH);

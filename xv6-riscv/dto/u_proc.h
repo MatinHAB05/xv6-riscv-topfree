@@ -24,3 +24,16 @@ struct u_proc
     struct u_proc_info me;
     struct u_proc_info parent;
 };
+
+struct u_memmory
+{
+    long read_disk_counter;
+    long write_disk_counter;
+    long read_cache_counter;
+    long write_cache_counter;
+    long read_cache_hit_counter;
+
+    long free_cache;
+    long free_ram;
+    long free_disk;
+};

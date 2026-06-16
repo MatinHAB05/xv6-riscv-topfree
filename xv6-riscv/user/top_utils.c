@@ -211,3 +211,60 @@ void print_help(void)
     printf("  --pause [number]         Pause amount between updates\n");
     printf("  --unit_pause [m|s|min]   Pause unit\n");
 }
+
+void print_percentage(long part, long total)
+{
+    if (total == 0)
+    {
+        printf("0.00%%");
+        return;
+    }
+    long ratio = (part * 10000) / total;
+    int whole = (int)(ratio / 100);
+    int frac = (int)(ratio % 100);
+
+    if (frac < 10)
+    {
+        printf("%d.0%d%%", whole, frac); // شبیه‌سازی %02d در xv6
+    }
+    else
+    {
+        printf("%d.%d%%", whole, frac);
+    }
+}
+
+void print_size(long bytes)
+{
+    if (bytes < 1024)
+    {
+        printf("%d B", (int)bytes);
+    }
+    else if (bytes < 1024 * 1024)
+    {
+        int whole = (int)(bytes / 1024);
+        int frac = (int)(((bytes % 1024) * 100) / 1024);
+        if (frac < 10)
+            printf("%d.0%d KB", whole, frac);
+        else
+            printf("%d.%d KB", whole, frac);
+    }
+    else if (bytes < 1024 * 1024 * 1024)
+    {
+        int whole = (int)(bytes / (1024 * 1024));
+        int frac = (int)(((bytes % (1024 * 1024)) * 100) / (1024 * 1024));
+        if (frac < 10)
+            printf("%d.0%d MB", whole, frac);
+        else
+            printf("%d.%d MB", whole, frac);
+    }
+    else
+    {
+        long gb = 1024 * 1024 * 1024;
+        int whole = (int)(bytes / gb);
+        int frac = (int)(((bytes % gb) * 100) / gb);
+        if (frac < 10)
+            printf("%d.0%d GB", whole, frac);
+        else
+            printf("%d.%d GB", whole, frac);
+    }
+}

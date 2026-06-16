@@ -186,4 +186,14 @@ void            virtio_disk_intr(void);
 
 
 int kernel_getallprocs(uint64 user_buf, int max);
-// #define DEBUG_MODE 1
+extern uint64 read_disk_counter;
+extern uint64 write_disk_counter;
+extern uint64 read_cache_counter;
+extern uint64 write_cahce_counter;
+extern uint64 read_cache_hit_counter;
+// uint64 write_cache_hit_counter =0;
+
+
+uint64          count_free_ram(void);
+uint64          count_free_cache(void);
+uint64          count_free_disk(void);
