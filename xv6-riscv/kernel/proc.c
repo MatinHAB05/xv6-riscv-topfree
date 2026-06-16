@@ -127,6 +127,8 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
+  p->cpu_ticks_base = ticks;
+  p->cpu_ticks = 0;
 
   // Allocate a trapframe page.
   if ((p->trapframe = (struct trapframe *)kalloc()) == 0)
@@ -718,8 +720,14 @@ void procdump(void)
 static void
 fill_u_proc(struct proc *p, struct u_proc *up, int parent_flag)
 {
+  printf("[DEBUG] fill_u_proc -> p_addr=%p, up_stack_addr=%p, PID=%d\n", p, up, p->pid);
+
+  memset(up, 0, sizeof(struct u_proc));
+
   up->me.pid = p->pid;
   up->me.is_killed = p->killed;
+  up->me.memory = (long)p->sz;
+  up->me.cpu_ticks = (long)p->cpu_ticks;
 
   safestrcpy(up->me.name, p->name, sizeof(up->me.name));
 
@@ -747,17 +755,24 @@ fill_u_proc(struct proc *p, struct u_proc *up, int parent_flag)
 
   if (parent_flag && p->parent)
   {
-    up->parent.pid = p->parent->pid;
-    up->parent.is_killed = p->parent->killed;
-    safestrcpy(up->parent.name, p->parent->name, sizeof(up->parent.name));
+    struct proc *parent = p->parent;
 
-    switch (p->parent->state)
+    printf("[DEBUG] parent_ptr=%p, parent_PID=%d\n", parent, parent->pid);
+
+    up->parent.pid = parent->pid;
+    up->parent.is_killed = parent->killed;
+    up->parent.memory = (long)parent->sz;
+    up->parent.cpu_ticks = (long)parent->cpu_ticks;
+
+    safestrcpy(up->parent.name, parent->name, sizeof(up->parent.name));
+
+    switch (parent->state)
     {
     case UNUSED:
       up->parent.state = U_UNUSED;
       break;
     case USED:
-      up->parent.state = U_USED;
+      parent->state = U_USED;
       break;
     case SLEEPING:
       up->parent.state = U_SLEEPING;
@@ -773,10 +788,6 @@ fill_u_proc(struct proc *p, struct u_proc *up, int parent_flag)
       break;
     }
   }
-  else
-  {
-    memset(&up->parent, 0, sizeof(up->parent));
-  }
 }
 
 int kernel_getallprocs(uint64 user_buf, int max)
@@ -785,28 +796,38 @@ int kernel_getallprocs(uint64 user_buf, int max)
   struct u_proc up;
   int count = 0;
 
+  printf("\n--- kernel_getallprocs START ---\n");
+  printf("[DEBUG] user_buf_start=0x%lx, max=%d, sizeof(u_proc)=%d\n", user_buf, max, (int)sizeof(struct u_proc));
+
   for (p = proc; p < &proc[NPROC] && count < max; p++)
   {
     acquire(&p->lock);
 
     if (p->state != UNUSED)
     {
+      uint64 current_target_addr = user_buf + count * sizeof(struct u_proc);
+
+      printf("[DEBUG] Loop index=%d, p_state=%d, target_user_addr=0x%lx\n", count, p->state, current_target_addr);
+
       fill_u_proc(p, &up, 1);
 
       if (copyout(myproc()->pagetable,
-                  user_buf + count * sizeof(struct u_proc),
+                  current_target_addr,
                   (char *)&up,
                   sizeof(up)) < 0)
       {
+        printf("[DEBUG ERROR] copyout FAILED at index=%d for addr=0x%lx\n", count, current_target_addr);
         release(&p->lock);
         return -1;
       }
 
+      printf("[DEBUG] copyout OK for index=%d\n", count);
       count++;
     }
 
     release(&p->lock);
   }
 
+  printf("--- kernel_getallprocs END -> count=%d ---\n\n", count);
   return count;
 }

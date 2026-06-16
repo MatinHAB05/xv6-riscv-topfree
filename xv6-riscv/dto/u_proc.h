@@ -15,6 +15,8 @@ struct u_proc_info
     enum u_procstate state;
     char name[16];
     int is_killed;
+    long memory;
+    long cpu_ticks;
 };
 
 struct u_proc

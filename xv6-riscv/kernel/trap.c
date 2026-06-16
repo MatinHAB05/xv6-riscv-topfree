@@ -16,15 +16,13 @@ void kernelvec();
 
 extern int devintr();
 
-void
-trapinit(void)
+void trapinit(void)
 {
   initlock(&tickslock, "time");
 }
 
 // set up to take exceptions and traps while in the kernel.
-void
-trapinithart(void)
+void trapinithart(void)
 {
   w_stvec((uint64)kernelvec);
 }
@@ -44,14 +42,16 @@ usertrap(void)
 
   // send interrupts and exceptions to kerneltrap(),
   // since we're now in the kernel.
-  w_stvec((uint64)kernelvec); //DOC: kernelvec
+  w_stvec((uint64)kernelvec); // DOC: kernelvec
 
   struct proc *p = myproc();
 
   // save user program counter.
   p->trapframe->epc = r_sepc();
+  p->cpu_ticks += ticks - p->cpu_ticks_base;
 
-  if (r_scause() == 8) {
+  if (r_scause() == 8)
+  {
     // system call
 
     if (killed(p))
@@ -66,13 +66,19 @@ usertrap(void)
     intr_on();
 
     syscall();
-  } else if ((which_dev = devintr()) != 0) {
+  }
+  else if ((which_dev = devintr()) != 0)
+  {
     // ok
-  } else if ((r_scause() == 15 || r_scause() == 13) &&
-             vmfault(p->pagetable, r_stval(), (r_scause() == 13) ? 1 : 0) !=
-               0) {
+  }
+  else if ((r_scause() == 15 || r_scause() == 13) &&
+           vmfault(p->pagetable, r_stval(), (r_scause() == 13) ? 1 : 0) !=
+               0)
+  {
     // page fault on lazily-allocated page
-  } else {
+  }
+  else
+  {
     printf("usertrap(): unexpected scause 0x%lx pid=%d\n", r_scause(), p->pid);
     printf("            sepc=0x%lx stval=0x%lx\n", r_sepc(), r_stval());
     setkilled(p);
@@ -87,6 +93,8 @@ usertrap(void)
 
   prepare_return();
 
+  p->cpu_ticks_base = ticks;
+
   // the user page table to switch to, for trampoline.S
   uint64 satp = MAKE_SATP(p->pagetable);
 
@@ -97,8 +105,7 @@ usertrap(void)
 //
 // set up trapframe and control registers for a return to user space
 //
-void
-prepare_return(void)
+void prepare_return(void)
 {
   struct proc *p = myproc();
 
@@ -133,8 +140,7 @@ prepare_return(void)
 
 // interrupts and exceptions from kernel code go here via kernelvec,
 // on whatever the current kernel stack is.
-void
-kerneltrap()
+void kerneltrap()
 {
   int which_dev = 0;
   uint64 sepc = r_sepc();
@@ -146,7 +152,8 @@ kerneltrap()
   if (intr_get() != 0)
     panic("kerneltrap: interrupts enabled");
 
-  if ((which_dev = devintr()) == 0) {
+  if ((which_dev = devintr()) == 0)
+  {
     // interrupt or trap from an unknown source
     printf("scause=0x%lx sepc=0x%lx stval=0x%lx\n", scause, r_sepc(),
            r_stval());
@@ -163,10 +170,10 @@ kerneltrap()
   w_sstatus(sstatus);
 }
 
-void
-clockintr()
+void clockintr()
 {
-  if (cpuid() == 0) {
+  if (cpuid() == 0)
+  {
     acquire(&tickslock);
     ticks++;
     wakeup(&ticks);
@@ -184,22 +191,27 @@ clockintr()
 // returns 2 if timer interrupt,
 // 1 if other device,
 // 0 if not recognized.
-int
-devintr()
+int devintr()
 {
   uint64 scause = r_scause();
 
-  if (scause == 0x8000000000000009L) {
+  if (scause == 0x8000000000000009L)
+  {
     // this is a supervisor external interrupt, via PLIC.
 
     // irq indicates which device interrupted.
     int irq = plic_claim();
 
-    if (irq == UART0_IRQ) {
+    if (irq == UART0_IRQ)
+    {
       uartintr();
-    } else if (irq == VIRTIO0_IRQ) {
+    }
+    else if (irq == VIRTIO0_IRQ)
+    {
       virtio_disk_intr();
-    } else if (irq) {
+    }
+    else if (irq)
+    {
       printf("unexpected interrupt irq=%d\n", irq);
     }
 
@@ -210,11 +222,15 @@ devintr()
       plic_complete(irq);
 
     return 1;
-  } else if (scause == 0x8000000000000005L) {
+  }
+  else if (scause == 0x8000000000000005L)
+  {
     // timer interrupt.
     clockintr();
     return 2;
-  } else {
+  }
+  else
+  {
     return 0;
   }
 }
