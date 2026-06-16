@@ -720,7 +720,7 @@ void procdump(void)
 static void
 fill_u_proc(struct proc *p, struct u_proc *up, int parent_flag)
 {
-  printf("[DEBUG] fill_u_proc -> p_addr=%p, up_stack_addr=%p, PID=%d\n", p, up, p->pid);
+  // printf("[DEBUG] fill_u_proc -> p_addr=%p, up_stack_addr=%p, PID=%d\n", p, up, p->pid);
 
   memset(up, 0, sizeof(struct u_proc));
 
@@ -757,7 +757,7 @@ fill_u_proc(struct proc *p, struct u_proc *up, int parent_flag)
   {
     struct proc *parent = p->parent;
 
-    printf("[DEBUG] parent_ptr=%p, parent_PID=%d\n", parent, parent->pid);
+    // printf("[DEBUG] parent_ptr=%p, parent_PID=%d\n", parent, parent->pid);
 
     up->parent.pid = parent->pid;
     up->parent.is_killed = parent->killed;
@@ -788,6 +788,10 @@ fill_u_proc(struct proc *p, struct u_proc *up, int parent_flag)
       break;
     }
   }
+  else
+  {
+    up->parent.pid = -1;
+  }
 }
 
 int kernel_getallprocs(uint64 user_buf, int max)
@@ -796,8 +800,8 @@ int kernel_getallprocs(uint64 user_buf, int max)
   struct u_proc up;
   int count = 0;
 
-  printf("\n--- kernel_getallprocs START ---\n");
-  printf("[DEBUG] user_buf_start=0x%lx, max=%d, sizeof(u_proc)=%d\n", user_buf, max, (int)sizeof(struct u_proc));
+  // printf("\n--- kernel_getallprocs START ---\n");
+  // printf("[DEBUG] user_buf_start=0x%lx, max=%d, sizeof(u_proc)=%d\n", user_buf, max, (int)sizeof(struct u_proc));
 
   for (p = proc; p < &proc[NPROC] && count < max; p++)
   {
@@ -807,7 +811,7 @@ int kernel_getallprocs(uint64 user_buf, int max)
     {
       uint64 current_target_addr = user_buf + count * sizeof(struct u_proc);
 
-      printf("[DEBUG] Loop index=%d, p_state=%d, target_user_addr=0x%lx\n", count, p->state, current_target_addr);
+      // printf("[DEBUG] Loop index=%d, p_state=%d, target_user_addr=0x%lx\n", count, p->state, current_target_addr);
 
       fill_u_proc(p, &up, 1);
 
@@ -816,18 +820,18 @@ int kernel_getallprocs(uint64 user_buf, int max)
                   (char *)&up,
                   sizeof(up)) < 0)
       {
-        printf("[DEBUG ERROR] copyout FAILED at index=%d for addr=0x%lx\n", count, current_target_addr);
+        // printf("[DEBUG ERROR] copyout FAILED at index=%d for addr=0x%lx\n", count, current_target_addr);
         release(&p->lock);
         return -1;
       }
 
-      printf("[DEBUG] copyout OK for index=%d\n", count);
+      // printf("[DEBUG] copyout OK for index=%d\n", count);
       count++;
     }
 
     release(&p->lock);
   }
 
-  printf("--- kernel_getallprocs END -> count=%d ---\n\n", count);
+  // printf("--- kernel_getallprocs END -> count=%d ---\n\n", count);
   return count;
 }

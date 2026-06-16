@@ -64,10 +64,7 @@ printptr(uint64 x)
 // Print to the console.
 int printf(char *fmt, ...)
 {
-  if (!DEBUG_MODE)
-  {
-    return 0;
-  }
+
   va_list ap;
   int i, cx, c0, c1, c2;
   char *s;

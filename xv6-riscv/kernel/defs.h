@@ -186,4 +186,4 @@ void            virtio_disk_intr(void);
 
 
 int kernel_getallprocs(uint64 user_buf, int max);
-#define DEBUG_MODE 1
+// #define DEBUG_MODE 1

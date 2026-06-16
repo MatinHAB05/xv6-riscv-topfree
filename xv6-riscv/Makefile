@@ -148,6 +148,7 @@ UPROGS=\
 	$U/_poweroff\
 	$U/_helloworldtest\
 	$U/_top\
+	$U/_clear\
 
 
 fs.img: mkfs/mkfs README $(UPROGS)
@@ -201,3 +202,6 @@ check-qemu-version:
 .PHONY: fmt
 fmt:
 	clang-format -i $(wildcard kernel/*.[ch] user/*.[ch] mkfs/*.c)
+
+$U/_top: $U/top.o $U/top_utils.o $(ULIB)
+	$(LD) $(LDFLAGS) -T $U/user.ld -o $@ $^
