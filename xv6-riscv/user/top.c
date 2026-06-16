@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
     char mem_opt = 'p';
     char sort_opt = 'n';
     char time_opt = 's';
-    int pause_val = 20;
+    int topause_val = 20;
     char deghat_pause = 't';
 
     for (int i = 1; i < argc; i++)

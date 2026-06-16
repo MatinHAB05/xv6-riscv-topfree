@@ -1,8 +1,4 @@
 
-
-#include "kernel/types.h"
-#include "user/user.h"
-
 #define NAME_WIDTH 16
 #define STATE_WIDTH 10
 #define PID_WIDTH 6
