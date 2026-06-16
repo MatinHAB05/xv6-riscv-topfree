@@ -1,8 +1,14 @@
 #include "kernel/types.h"
 #include "user/user.h"
 
-char *
-state_to_string(enum u_procstate state)
+#define NAME_WIDTH 16
+#define STATE_WIDTH 10
+#define PID_WIDTH 6
+#define ISKILLED_WIDTH 8
+#define PARENT_WIDTH 30
+
+static char *
+state_to_string(int state)
 {
     switch (state)
     {
@@ -23,6 +29,15 @@ state_to_string(enum u_procstate state)
     }
 }
 
+void print_padded(char *s, int width)
+{
+    int len = strlen(s);
+    printf("%s", s);
+
+    for (int i = len; i < width; i++)
+        printf(" ");
+}
+
 int main(int argc, char *argv[])
 {
     struct u_proc procs[64];
@@ -37,14 +52,36 @@ int main(int argc, char *argv[])
 
     printf("Found %d processes\n\n", n);
 
-    printf("PID\tSTATE\n");
-    printf("------------------\n");
+    print_padded("PID", PID_WIDTH);
+    print_padded("STATE", STATE_WIDTH);
+    print_padded("KILLED", ISKILLED_WIDTH);
+    print_padded("NAME", NAME_WIDTH);
+    print_padded("PARENT\tPID\tNAME", PARENT_WIDTH);
+    printf("\n");
+
+    printf("--------------------------------------------------------------------------------\n");
 
     for (int i = 0; i < n; i++)
     {
-        printf("%d\t%s\n",
-               procs[i].pid,
-               state_to_string(procs[i].state));
+        char buf[16];
+
+        itoa(procs[i].me.pid, buf, 10);
+        print_padded(buf, PID_WIDTH);
+
+        print_padded(state_to_string(procs[i].me.state), STATE_WIDTH);
+
+        itoa(procs[i].me.is_killed, buf, 10);
+        print_padded(buf, ISKILLED_WIDTH);
+
+        print_padded(procs[i].me.name, NAME_WIDTH);
+
+        printf("\t");
+        itoa(procs[i].parent.pid, buf, 10);
+        print_padded(buf, PID_WIDTH);
+        printf("\t");
+        print_padded(procs[i].parent.name, NAME_WIDTH);
+
+        printf("\n");
     }
 
     exit(0);

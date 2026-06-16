@@ -715,6 +715,70 @@ void procdump(void)
   }
 }
 
+static void
+fill_u_proc(struct proc *p, struct u_proc *up, int parent_flag)
+{
+  up->me.pid = p->pid;
+  up->me.is_killed = p->killed;
+
+  safestrcpy(up->me.name, p->name, sizeof(up->me.name));
+
+  switch (p->state)
+  {
+  case UNUSED:
+    up->me.state = U_UNUSED;
+    break;
+  case USED:
+    up->me.state = U_USED;
+    break;
+  case SLEEPING:
+    up->me.state = U_SLEEPING;
+    break;
+  case RUNNABLE:
+    up->me.state = U_RUNNABLE;
+    break;
+  case RUNNING:
+    up->me.state = U_RUNNING;
+    break;
+  case ZOMBIE:
+    up->me.state = U_ZOMBIE;
+    break;
+  }
+
+  if (parent_flag && p->parent)
+  {
+    up->parent.pid = p->parent->pid;
+    up->parent.is_killed = p->parent->killed;
+    safestrcpy(up->parent.name, p->parent->name, sizeof(up->parent.name));
+
+    switch (p->parent->state)
+    {
+    case UNUSED:
+      up->parent.state = U_UNUSED;
+      break;
+    case USED:
+      up->parent.state = U_USED;
+      break;
+    case SLEEPING:
+      up->parent.state = U_SLEEPING;
+      break;
+    case RUNNABLE:
+      up->parent.state = U_RUNNABLE;
+      break;
+    case RUNNING:
+      up->parent.state = U_RUNNING;
+      break;
+    case ZOMBIE:
+      up->parent.state = U_ZOMBIE;
+      break;
+    }
+  }
+  else
+  {
+    memset(&up->parent, 0, sizeof(up->parent));
+  }
+}
+
 int kernel_getallprocs(uint64 user_buf, int max)
 {
   struct proc *p;
@@ -727,40 +791,12 @@ int kernel_getallprocs(uint64 user_buf, int max)
 
     if (p->state != UNUSED)
     {
-      up.pid = p->pid;
+      fill_u_proc(p, &up, 1);
 
-      switch (p->state)
-      {
-      case UNUSED:
-        up.state = UNUSED;
-        break;
-
-      case USED:
-        up.state = USED;
-        break;
-
-      case SLEEPING:
-        up.state = SLEEPING;
-        break;
-
-      case RUNNABLE:
-        up.state = RUNNABLE;
-        break;
-
-      case RUNNING:
-        up.state = RUNNING;
-        break;
-
-      case ZOMBIE:
-        up.state = ZOMBIE;
-        break;
-      }
-
-      if (copyout(
-              myproc()->pagetable,
-              user_buf + count * sizeof(struct u_proc),
-              (char *)&up,
-              sizeof(struct u_proc)) < 0)
+      if (copyout(myproc()->pagetable,
+                  user_buf + count * sizeof(struct u_proc),
+                  (char *)&up,
+                  sizeof(up)) < 0)
       {
         release(&p->lock);
         return -1;

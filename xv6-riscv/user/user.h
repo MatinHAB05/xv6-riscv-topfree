@@ -50,3 +50,6 @@ void printf(const char *, ...) __attribute__((format(printf, 1, 2)));
 // umalloc.c
 void *malloc(uint);
 void free(void *);
+
+void reverse(char *str, int len);
+char *itoa(int value, char *str, int base);

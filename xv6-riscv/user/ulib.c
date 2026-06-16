@@ -160,3 +160,64 @@ sbrklazy(int n)
 {
   return sys_sbrk(n, SBRK_LAZY);
 }
+
+
+#include "kernel/types.h"
+
+void
+reverse(char *str, int len)
+{
+    int i = 0;
+    int j = len - 1;
+
+    while(i < j)
+    {
+        char tmp = str[i];
+        str[i] = str[j];
+        str[j] = tmp;
+        i++;
+        j--;
+    }
+}
+
+char *
+itoa(int value, char *str, int base)
+{
+    int i = 0;
+    int is_negative = 0;
+
+    // only support base 10 and 16 (safe for xv6)
+    if(base != 10 && base != 16)
+        return 0;
+
+    // handle 0
+    if(value == 0)
+    {
+        str[i++] = '0';
+        str[i] = '\0';
+        return str;
+    }
+
+    // handle negative (only for base 10)
+    if(value < 0 && base == 10)
+    {
+        is_negative = 1;
+        value = -value;
+    }
+
+    while(value != 0)
+    {
+        int rem = value % base;
+        str[i++] = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
+        value = value / base;
+    }
+
+    if(is_negative)
+        str[i++] = '-';
+
+    str[i] = '\0';
+
+    reverse(str, i);
+
+    return str;
+}
