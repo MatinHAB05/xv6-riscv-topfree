@@ -147,6 +147,8 @@ UPROGS=\
 	$U/_dorphan\
 	$U/_poweroff\
 	$U/_helloworldtest\
+	$U/_top\
+
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)

@@ -7,3 +7,6 @@ start:
 		echo "----------------------------build xv6 and run it----------------------------"; \
 		make qemu; \
 		'
+init:
+	@echo "\n----------------------------Makefile Begins----------------------------\n"
+	@docker run -it --rm -v $(CURDIR):/home/xv6/xv6-riscv wtakuo/xv6-env  

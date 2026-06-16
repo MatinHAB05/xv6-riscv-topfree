@@ -1,3 +1,4 @@
+#include "dto/u_proc.h"
 #define SBRK_ERROR ((char *)-1)
 
 struct stat;
@@ -25,6 +26,7 @@ char *sys_sbrk(int, int);
 int pause(int);
 int uptime(void);
 void poweroff(void);
+int getallprocs(struct u_proc *buf, int max);
 
 // ulib.c
 int stat(const char *, struct stat *);
