@@ -1,4 +1,4 @@
-#include "user/top.h"
+#include "user/topfree.h"
 
 void str_append(char *dest, const char *src) {
   int i = strlen(dest);
@@ -159,8 +159,8 @@ void sort_processes(struct u_proc *p, int n, char sort_opt) {
 
 void print_help(void) {
   // clang-format off
-    printf("xv6 Top Process Monitor\n");
-    printf("Usage: top [options]\n\n");
+    printf("xv6 TopFree Process Monitor\n");
+    printf("Usage: topfree [options]\n\n");
     printf("Options:\n");
     printf("  --help, -h               Show help and exit\n");
     printf("  --iter [number]          Number of iterations (default: 5 ; zero means +inf)\n");

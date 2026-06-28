@@ -6,7 +6,7 @@
 //  TODO: one-view data in header(#running proccess / #process / uptime /  )
 //  TODO: read_timeout for q (quit)
 
-#include "user/top.h"
+#include "user/topfree.h"
 
 struct u_memmory umemstat;
 struct u_proc procs[64];
@@ -19,7 +19,7 @@ struct u_proc procs[64];
 void wait_and_check_quit(int target_ticks) {
   for (int i = 0; i < target_ticks; i++) {
     if (getc_nb() == 'q') {
-      printf("\n\nExiting top program :)\n");
+      printf("\n\nExiting topfree program :)\n");
       exit(0);
     }
 
@@ -28,7 +28,7 @@ void wait_and_check_quit(int target_ticks) {
 }
 
 // Parses argv into the config struct
-void parse_args(int argc, char *argv[], struct top_config *cfg) {
+void parse_args(int argc, char *argv[], struct topfree_config *cfg) {
   int flag = 97;
   for (int i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
@@ -123,13 +123,13 @@ void parse_args(int argc, char *argv[], struct top_config *cfg) {
 
 int main(int argc, char *argv[]) {
   // 1. Setup Defaults
-  struct top_config config = {
+  struct topfree_config config = {
       .max_iterations = 5,
       .cpu_opt = 'p',
       .mem_opt = 'p',
       .sort_opt = 'n',
       .time_opt = 's',
-      .pause_duration = 5,
+      .pause_duration = 20,
       .pause_unit = 't' // default raw ticks
   };
 

@@ -15,7 +15,7 @@
 #define TOTAL_MEM_BYTES 134217728
 
 // Configuration Struct
-struct top_config
+struct topfree_config
 {
     int max_iterations;
     char cpu_opt;       // 'p' (%), 't' (ticks), 's' (seconds)

@@ -147,7 +147,7 @@ UPROGS=\
 	$U/_dorphan\
 	$U/_poweroff\
 	$U/_helloworldtest\
-	$U/_top\
+	$U/_topfree\
 	$U/_clear\
 	$U/_toggle_dbg\
 
@@ -204,5 +204,5 @@ check-qemu-version:
 fmt:
 	clang-format -i $(wildcard kernel/*.[ch] user/*.[ch] mkfs/*.c)
 
-$U/_top: $U/top.o $U/top_utils.o $(ULIB)
+$U/_topfree: $U/topfree.o $U/topfree_utils.o $(ULIB)
 	$(LD) $(LDFLAGS) -T $U/user.ld -o $@ $^
