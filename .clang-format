@@ -1,0 +1,21 @@
+Language: Cpp
+BasedOnStyle: LLVM
+
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+
+BreakBeforeBraces: Attach
+
+MaxEmptyLinesToKeep: 1
+
+KeepEmptyLinesAtTheStartOfBlocks: false
+
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpaceAfterCStyleCast: false
+
+ColumnLimit: 0
+SortIncludes: false
+IndentCaseLabels: true
+IndentCaseBlocks: false

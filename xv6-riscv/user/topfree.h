@@ -15,15 +15,14 @@
 #define TOTAL_MEM_BYTES 134217728
 
 // Configuration Struct
-struct topfree_config
-{
-    int max_iterations;
-    char cpu_opt;       // 'p' (%), 't' (ticks), 's' (seconds)
-    char mem_opt;       // 'p' (%), 'K', 'M', 'G'
-    char sort_opt;      // 'n' (none), 'c' (cpu), 'm' (mem), 't' (time)
-    char time_opt;      // 'm' (ms), 's' (sec), 'M' (min)
-    int pause_duration; // Raw pause value
-    char pause_unit;    // 'm' (ms), 's' (sec), 'M' (min)
+struct topfree_config {
+  int max_iterations;
+  char cpu_opt;       // 'p' (%), 't' (ticks), 's' (seconds)
+  char mem_opt;       // 'p' (%), 'K', 'M', 'G'
+  char sort_opt;      // 'n' (none), 'c' (cpu), 'm' (mem), 't' (time)
+  char time_opt;      // 'm' (ms), 's' (sec), 'M' (min)
+  int pause_duration; // Raw pause value
+  char pause_unit;    // 'm' (ms), 's' (sec), 'M' (min)
 };
 
 // Function Prototypes

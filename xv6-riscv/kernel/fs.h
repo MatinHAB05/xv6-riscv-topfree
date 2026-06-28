@@ -1,8 +1,8 @@
 // On-disk file system format.
 // Both the kernel and user programs use this header file.
 
-#define ROOTINO 1    // root i-number
-#define BSIZE   1024 // block size
+#define ROOTINO 1  // root i-number
+#define BSIZE 1024 // block size
 
 // Disk layout:
 // [ boot block | super block | log | inode blocks |
@@ -23,9 +23,9 @@ struct superblock {
 
 #define FSMAGIC 0x10203040
 
-#define NDIRECT   12
+#define NDIRECT 12
 #define NINDIRECT (BSIZE / sizeof(uint))
-#define MAXFILE   (NDIRECT + NINDIRECT)
+#define MAXFILE (NDIRECT + NINDIRECT)
 
 // On-disk inode structure
 struct dinode {

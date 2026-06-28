@@ -8,13 +8,21 @@
 # ./test-xv6.py crash  (runs the crash tests)
 # ./test-xv6.py log (runs the log crash test)
 
-import argparse, os, inspect, re, signal, subprocess, sys, time
+import argparse
+import os
+import inspect
+import re
+import signal
+import subprocess
+import sys
+import time
 from subprocess import run
 
 parser = argparse.ArgumentParser()
 parser.add_argument('testrex', help="test name or regular expression")
 parser.add_argument("-q", action='store_true', help="usertests quick")
 args = parser.parse_args()
+
 
 class QEMU(object):
 
@@ -24,10 +32,10 @@ class QEMU(object):
             self.reset_fs()
         q = ["make", "qemu"]
         self.proc = subprocess.Popen(q, stdin=subprocess.PIPE,
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.STDOUT)
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.STDOUT)
         self.output = ""
-        self.outbytes = bytearray()       
+        self.outbytes = bytearray()
         time.sleep(1)
 
     def reset_fs(self):
@@ -44,21 +52,22 @@ class QEMU(object):
             print(f"Command failed with exit code {e.returncode}")
 
     def save_output(self):
-      try:
-        with open("test-xv6.out", "w") as f:
-            f.write(self.out)
-            f.close()
-      except OSError as e:
-        print("Provided a bad results path. Error:", e)     
-        
+        try:
+            with open("test-xv6.out", "w") as f:
+                f.write(self.out)
+                f.close()
+        except OSError as e:
+            print("Provided a bad results path. Error:", e)
+
     def cmd(self, c):
         if isinstance(c, str):
             c = c.encode('utf-8')
         self.proc.stdin.write(c)
         self.proc.stdin.flush()
-        
+
     def crash(self):
-        ps = run(['ps', '-opid', '--no-headers', '--ppid', str(self.proc.pid)], stdout=subprocess.PIPE, encoding='utf8')
+        ps = run(['ps', '-opid', '--no-headers', '--ppid',
+                 str(self.proc.pid)], stdout=subprocess.PIPE, encoding='utf8')
         kids = [int(line) for line in ps.stdout.splitlines()]
         if len(kids) == 0:
             print("no qemu")
@@ -112,12 +121,14 @@ class QEMU(object):
             if ok:
                 print(line)
 
+
 def crash_log():
     q = QEMU(True)
     q.cmd("logstress f0 f1 f2 f3 f4 f5\n")
     time.sleep(2)
     q.crash()
     q.stop()
+
 
 def recover_log():
     q = QEMU()
@@ -132,6 +143,7 @@ def recover_log():
     q.stop()
     return ok
 
+
 def forphan():
     q = QEMU(True)
     q.cmd("forphan\n")
@@ -140,6 +152,7 @@ def forphan():
     q.match('wait')
     q.crash()
     q.stop()
+
 
 def dorphan():
     q = QEMU(True)
@@ -150,12 +163,14 @@ def dorphan():
     q.crash()
     q.stop()
 
+
 def recover_orphan():
     q = QEMU()
     time.sleep(2)
     q.read()
     q.match('^ireclaim')
     q.stop()
+
 
 def test_log():
     print("Test recovery of log")
@@ -168,12 +183,14 @@ def test_log():
         print("log attempt ", i+1)
     print("FAIL")
     sys.exit(1)
-    
+
+
 def test_forphan():
     print("Test recovery of an orphaned file")
     forphan()
     recover_orphan()
     print("OK")
+
 
 def test_dorphan():
     print("Test recovery of an orphaned file")
@@ -181,10 +198,12 @@ def test_dorphan():
     recover_orphan()
     print("OK")
 
+
 def test_crash():
     test_log()
     test_forphan()
     test_dorphan()
+
 
 def test_usertests(test=""):
     timeout = 600
@@ -199,18 +218,20 @@ def test_usertests(test=""):
     q.monitor('^ALL TESTS PASSED', progress='test', timeout=timeout)
     q.stop()
 
+
 def main():
     print(args)
     rex = r'%s' % args.testrex
-    funcs = [(obj,name) for name,obj in inspect.getmembers(sys.modules[__name__]) 
-                     if (inspect.isfunction(obj) and 
-                         name.startswith('test'))]
+    funcs = [(obj, name) for name, obj in inspect.getmembers(sys.modules[__name__])
+             if (inspect.isfunction(obj) and
+                 name.startswith('test'))]
     none = True
-    for (f,n) in funcs:
+    for (f, n) in funcs:
         if re.search(rex, n):
             none = False
             f()
     if none:
         test_usertests(test=args.testrex)
+
 
 main()

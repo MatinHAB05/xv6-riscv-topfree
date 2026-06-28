@@ -2,9 +2,7 @@
 // formatted console output -- printf, panic.
 //
 
-// clang-format off
 #include <stdarg.h>
-
 #include "types.h"
 #include "param.h"
 #include "spinlock.h"
@@ -15,7 +13,6 @@
 #include "riscv.h"
 #include "defs.h"
 #include "proc.h"
-// clang-format on
 
 int debug_mode = 0;
 
@@ -61,7 +58,6 @@ static void printptr(uint64 x) {
 
 // Print to the console.
 int printf(char *fmt, ...) {
-
   va_list ap;
   int i, cx, c0, c1, c2;
   char *s;

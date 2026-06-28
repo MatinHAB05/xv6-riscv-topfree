@@ -8,9 +8,7 @@
 //
 // wrapper so that it's OK if main() does not call exit().
 //
-void
-start(int argc, char **argv)
-{
+void start(int argc, char **argv) {
   int r;
   extern int main(int argc, char **argv);
   r = main(argc, argv);
@@ -18,8 +16,7 @@ start(int argc, char **argv)
 }
 
 char *
-strcpy(char *s, const char *t)
-{
+strcpy(char *s, const char *t) {
   char *os;
 
   os = s;
@@ -28,17 +25,13 @@ strcpy(char *s, const char *t)
   return os;
 }
 
-int
-strcmp(const char *p, const char *q)
-{
+int strcmp(const char *p, const char *q) {
   while (*p && *p == *q)
     p++, q++;
   return (uchar)*p - (uchar)*q;
 }
 
-uint
-strlen(const char *s)
-{
+uint strlen(const char *s) {
   int n;
 
   for (n = 0; s[n]; n++)
@@ -47,8 +40,7 @@ strlen(const char *s)
 }
 
 void *
-memset(void *dst, int c, uint n)
-{
+memset(void *dst, int c, uint n) {
   char *cdst = (char *)dst;
   int i;
   for (i = 0; i < n; i++) {
@@ -58,8 +50,7 @@ memset(void *dst, int c, uint n)
 }
 
 char *
-strchr(const char *s, char c)
-{
+strchr(const char *s, char c) {
   for (; *s; s++)
     if (*s == c)
       return (char *)s;
@@ -67,8 +58,7 @@ strchr(const char *s, char c)
 }
 
 char *
-gets(char *buf, int max)
-{
+gets(char *buf, int max) {
   int i, cc;
   char c;
 
@@ -84,9 +74,7 @@ gets(char *buf, int max)
   return buf;
 }
 
-int
-stat(const char *n, struct stat *st)
-{
+int stat(const char *n, struct stat *st) {
   int fd;
   int r;
 
@@ -98,9 +86,7 @@ stat(const char *n, struct stat *st)
   return r;
 }
 
-int
-atoi(const char *s)
-{
+int atoi(const char *s) {
   int n;
 
   n = 0;
@@ -110,8 +96,7 @@ atoi(const char *s)
 }
 
 void *
-memmove(void *vdst, const void *vsrc, int n)
-{
+memmove(void *vdst, const void *vsrc, int n) {
   char *dst;
   const char *src;
 
@@ -129,9 +114,7 @@ memmove(void *vdst, const void *vsrc, int n)
   return vdst;
 }
 
-int
-memcmp(const void *s1, const void *s2, uint n)
-{
+int memcmp(const void *s1, const void *s2, uint n) {
   const char *p1 = s1, *p2 = s2;
   while (n-- > 0) {
     if (*p1 != *p2) {
@@ -144,80 +127,69 @@ memcmp(const void *s1, const void *s2, uint n)
 }
 
 void *
-memcpy(void *dst, const void *src, uint n)
-{
+memcpy(void *dst, const void *src, uint n) {
   return memmove(dst, src, n);
 }
 
 char *
-sbrk(int n)
-{
+sbrk(int n) {
   return sys_sbrk(n, SBRK_EAGER);
 }
 
 char *
-sbrklazy(int n)
-{
+sbrklazy(int n) {
   return sys_sbrk(n, SBRK_LAZY);
 }
 
-
 #include "kernel/types.h"
 
-void
-reverse(char *str, int len)
-{
-    int i = 0;
-    int j = len - 1;
+void reverse(char *str, int len) {
+  int i = 0;
+  int j = len - 1;
 
-    while(i < j)
-    {
-        char tmp = str[i];
-        str[i] = str[j];
-        str[j] = tmp;
-        i++;
-        j--;
-    }
+  while (i < j) {
+    char tmp = str[i];
+    str[i] = str[j];
+    str[j] = tmp;
+    i++;
+    j--;
+  }
 }
 
 char *
-itoa(int value, char *str, int base)
-{
-    int i = 0;
-    int is_negative = 0;
+itoa(int value, char *str, int base) {
+  int i = 0;
+  int is_negative = 0;
 
-    // only support base 10 and 16 (safe for xv6)
-    if(base != 10 && base != 16)
-        return 0;
+  // only support base 10 and 16 (safe for xv6)
+  if (base != 10 && base != 16)
+    return 0;
 
-    // handle 0
-    if(value == 0)
-    {
-        str[i++] = '0';
-        str[i] = '\0';
-        return str;
-    }
-
-    // handle negative (only for base 10)
-    if(value < 0 && base == 10)
-    {
-        is_negative = 1;
-        value = -value;
-    }
-
-    while(value != 0)
-    {
-        int rem = value % base;
-        str[i++] = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
-        value = value / base;
-    }
-
-    if(is_negative)
-        str[i++] = '-';
-
+  // handle 0
+  if (value == 0) {
+    str[i++] = '0';
     str[i] = '\0';
-
-    reverse(str, i);
-
     return str;
+  }
+
+  // handle negative (only for base 10)
+  if (value < 0 && base == 10) {
+    is_negative = 1;
+    value = -value;
+  }
+
+  while (value != 0) {
+    int rem = value % base;
+    str[i++] = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
+    value = value / base;
+  }
+
+  if (is_negative)
+    str[i++] = '-';
+
+  str[i] = '\0';
+
+  reverse(str, i);
+
+  return str;
 }

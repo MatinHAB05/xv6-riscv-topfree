@@ -10,20 +10,20 @@ void str_append(char *dest, const char *src) {
 
 char *state_to_string(int state) {
   switch (state) {
-  case U_UNUSED:
-    return "UNUSED";
-  case U_USED:
-    return "USED";
-  case U_SLEEPING:
-    return "SLEEPING";
-  case U_RUNNABLE:
-    return "RUNNABLE";
-  case U_RUNNING:
-    return "RUNNING";
-  case U_ZOMBIE:
-    return "ZOMBIE";
-  default:
-    return "UNKNOWN";
+    case U_UNUSED:
+      return "UNUSED";
+    case U_USED:
+      return "USED";
+    case U_SLEEPING:
+      return "SLEEPING";
+    case U_RUNNABLE:
+      return "RUNNABLE";
+    case U_RUNNING:
+      return "RUNNING";
+    case U_ZOMBIE:
+      return "ZOMBIE";
+    default:
+      return "UNKNOWN";
   }
 }
 

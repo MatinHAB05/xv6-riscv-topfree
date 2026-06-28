@@ -6,7 +6,6 @@
 // virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
 //
 
-// clang-format off
 #include "types.h"
 #include "riscv.h"
 #include "defs.h"
@@ -17,7 +16,6 @@
 #include "fs.h"
 #include "buf.h"
 #include "virtio.h"
-// clang-format on
 
 // the address of virtio mmio register r.
 #define R(r) ((volatile uint32 *)(VIRTIO0 + (r)))

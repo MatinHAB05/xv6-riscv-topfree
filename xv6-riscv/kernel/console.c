@@ -8,29 +8,17 @@
 //   control-d -- end of file
 //   control-p -- print process list
 //
-// clang-format off
 #include <stdarg.h>
-
 #include "types.h"
-
 #include "param.h"
-
 #include "spinlock.h"
-
 #include "sleeplock.h"
-
 #include "fs.h"
-
 #include "file.h"
-
 #include "memlayout.h"
-
 #include "riscv.h"
-
 #include "defs.h"
-
 #include "proc.h"
-// clang-format on
 
 #define BACKSPACE 0x100  // erase the last output character
 #define C(x) ((x) - '@') // Control-x
@@ -148,41 +136,41 @@ void consoleintr(int c) {
   acquire(&cons.lock);
 
   switch (c) {
-  case C('P'): // Print process list.
-    procdump();
-    break;
-  case C('U'): // Kill line.
-    while (cons.e != cons.w &&
-           cons.buf[(cons.e - 1) % INPUT_BUF_SIZE] != '\n') {
-      cons.e--;
-      consputc(BACKSPACE);
-    }
-    break;
-  case C('H'): // Backspace
-  case '\x7f': // Delete key
-    if (cons.e != cons.w) {
-      cons.e--;
-      consputc(BACKSPACE);
-    }
-    break;
-  default:
-    if (c != 0 && cons.e - cons.r < INPUT_BUF_SIZE) {
-      c = (c == '\r') ? '\n' : c;
-
-      // echo back to the user.
-      consputc(c);
-
-      // store for consumption by consoleread().
-      cons.buf[cons.e++ % INPUT_BUF_SIZE] = c;
-
-      if (c == '\n' || c == C('D') || cons.e - cons.r == INPUT_BUF_SIZE) {
-        // wake up consoleread() if a whole line (or end-of-file)
-        // has arrived.
-        cons.w = cons.e;
-        wakeup(&cons.r);
+    case C('P'): // Print process list.
+      procdump();
+      break;
+    case C('U'): // Kill line.
+      while (cons.e != cons.w &&
+             cons.buf[(cons.e - 1) % INPUT_BUF_SIZE] != '\n') {
+        cons.e--;
+        consputc(BACKSPACE);
       }
-    }
-    break;
+      break;
+    case C('H'): // Backspace
+    case '\x7f': // Delete key
+      if (cons.e != cons.w) {
+        cons.e--;
+        consputc(BACKSPACE);
+      }
+      break;
+    default:
+      if (c != 0 && cons.e - cons.r < INPUT_BUF_SIZE) {
+        c = (c == '\r') ? '\n' : c;
+
+        // echo back to the user.
+        consputc(c);
+
+        // store for consumption by consoleread().
+        cons.buf[cons.e++ % INPUT_BUF_SIZE] = c;
+
+        if (c == '\n' || c == C('D') || cons.e - cons.r == INPUT_BUF_SIZE) {
+          // wake up consoleread() if a whole line (or end-of-file)
+          // has arrived.
+          cons.w = cons.e;
+          wakeup(&cons.r);
+        }
+      }
+      break;
   }
 
   release(&cons.lock);

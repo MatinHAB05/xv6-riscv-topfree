@@ -10,9 +10,7 @@
 static int loadseg(pde_t *, uint64, struct inode *, uint, uint);
 
 // map ELF permissions to PTE permission bits.
-int
-flags2perm(int flags)
-{
+int flags2perm(int flags) {
   int perm = 0;
   if (flags & 0x1)
     perm = PTE_X;
@@ -24,9 +22,7 @@ flags2perm(int flags)
 //
 // the implementation of the exec() system call
 //
-int
-kexec(char *path, char **argv)
-{
+int kexec(char *path, char **argv) {
   char *s, *last;
   int i, off;
   uint64 argc, sz = 0, sp, ustack[MAXARG], stackbase;
@@ -156,8 +152,7 @@ bad:
 // Returns 0 on success, -1 on failure.
 static int
 loadseg(pagetable_t pagetable, uint64 va, struct inode *ip, uint offset,
-        uint sz)
-{
+        uint sz) {
   uint i, n;
   uint64 pa;
 

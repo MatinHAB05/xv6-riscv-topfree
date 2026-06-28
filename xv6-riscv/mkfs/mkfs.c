@@ -12,11 +12,11 @@
 #include "kernel/param.h"
 
 #ifndef static_assert
-#define static_assert(a, b)                                                    \
-  do {                                                                         \
-    switch (0)                                                                 \
-    case 0:                                                                    \
-    case (a):;                                                                 \
+#define static_assert(a, b) \
+  do {                      \
+    switch (0)              \
+    case 0:                 \
+    case (a):;              \
   } while (0)
 #endif
 
@@ -28,8 +28,8 @@
 int nbitmap = FSSIZE / BPB + 1;
 int ninodeblocks = NINODES / IPB + 1;
 int nlog = LOGBLOCKS + 1; // Header followed by LOGBLOCKS data blocks.
-int nmeta;   // Number of meta blocks (boot, sb, nlog, inode, bitmap)
-int nblocks; // Number of data blocks
+int nmeta;                // Number of meta blocks (boot, sb, nlog, inode, bitmap)
+int nblocks;              // Number of data blocks
 
 int fsfd;
 struct superblock sb;
@@ -48,8 +48,7 @@ void die(const char *);
 
 // convert to riscv byte order
 ushort
-xshort(ushort x)
-{
+xshort(ushort x) {
   ushort y;
   uchar *a = (uchar *)&y;
   a[0] = x;
@@ -57,9 +56,7 @@ xshort(ushort x)
   return y;
 }
 
-uint
-xint(uint x)
-{
+uint xint(uint x) {
   uint y;
   uchar *a = (uchar *)&y;
   a[0] = x;
@@ -69,9 +66,7 @@ xint(uint x)
   return y;
 }
 
-int
-main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   int i, cc, fd;
   uint rootino, inum, off;
   struct dirent de;
@@ -106,8 +101,8 @@ main(int argc, char *argv[])
   sb.bmapstart = xint(2 + nlog + ninodeblocks);
 
   printf(
-    "nmeta %d (boot, super, log blocks %u, inode blocks %u, bitmap blocks %u) blocks %d total %d\n",
-    nmeta, nlog, ninodeblocks, nbitmap, nblocks, FSSIZE);
+      "nmeta %d (boot, super, log blocks %u, inode blocks %u, bitmap blocks %u) blocks %d total %d\n",
+      nmeta, nlog, ninodeblocks, nbitmap, nblocks, FSSIZE);
 
   freeblock = nmeta; // the first free block that we can allocate
 
@@ -178,18 +173,14 @@ main(int argc, char *argv[])
   exit(0);
 }
 
-void
-wsect(uint sec, void *buf)
-{
+void wsect(uint sec, void *buf) {
   if (lseek(fsfd, sec * BSIZE, 0) != sec * BSIZE)
     die("lseek");
   if (write(fsfd, buf, BSIZE) != BSIZE)
     die("write");
 }
 
-void
-winode(uint inum, struct dinode *ip)
-{
+void winode(uint inum, struct dinode *ip) {
   char buf[BSIZE];
   uint bn;
   struct dinode *dip;
@@ -201,9 +192,7 @@ winode(uint inum, struct dinode *ip)
   wsect(bn, buf);
 }
 
-void
-rinode(uint inum, struct dinode *ip)
-{
+void rinode(uint inum, struct dinode *ip) {
   char buf[BSIZE];
   uint bn;
   struct dinode *dip;
@@ -214,18 +203,14 @@ rinode(uint inum, struct dinode *ip)
   *ip = *dip;
 }
 
-void
-rsect(uint sec, void *buf)
-{
+void rsect(uint sec, void *buf) {
   if (lseek(fsfd, sec * BSIZE, 0) != sec * BSIZE)
     die("lseek");
   if (read(fsfd, buf, BSIZE) != BSIZE)
     die("read");
 }
 
-uint
-ialloc(ushort type)
-{
+uint ialloc(ushort type) {
   uint inum = freeinode++;
   struct dinode din;
 
@@ -237,9 +222,7 @@ ialloc(ushort type)
   return inum;
 }
 
-void
-balloc(int used)
-{
+void balloc(int used) {
   uchar buf[BSIZE];
   int i;
 
@@ -255,9 +238,7 @@ balloc(int used)
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-void
-iappend(uint inum, void *xp, int n)
-{
+void iappend(uint inum, void *xp, int n) {
   char *p = (char *)xp;
   uint fbn, off, n1;
   struct dinode din;
@@ -299,9 +280,7 @@ iappend(uint inum, void *xp, int n)
   winode(inum, &din);
 }
 
-void
-die(const char *s)
-{
+void die(const char *s) {
   perror(s);
   exit(1);
 }

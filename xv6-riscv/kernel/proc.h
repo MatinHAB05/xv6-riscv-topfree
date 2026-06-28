@@ -1,6 +1,5 @@
 // Saved registers for kernel context switches.
-struct context
-{
+struct context {
   uint64 ra;
   uint64 sp;
 
@@ -20,8 +19,7 @@ struct context
 };
 
 // Per-CPU state.
-struct cpu
-{
+struct cpu {
   struct proc *proc;      // The process running on this cpu, or null.
   struct context context; // swtch() here to enter scheduler().
   int noff;               // Depth of push_off() nesting.
@@ -39,8 +37,7 @@ extern struct cpu cpus[NCPU];
 // prepare_return() and userret in trampoline.S set up
 // the trapframe's kernel_*, restore user registers from the
 // trapframe, switch to the user page table, and enter user space.
-struct trapframe
-{
+struct trapframe {
   /*   0 */ uint64 kernel_satp;   // kernel page table
   /*   8 */ uint64 kernel_sp;     // top of process's kernel stack
   /*  16 */ uint64 kernel_trap;   // usertrap()
@@ -79,8 +76,7 @@ struct trapframe
   /* 280 */ uint64 t6;
 };
 
-enum procstate
-{
+enum procstate {
   UNUSED,
   USED,
   SLEEPING,
@@ -90,8 +86,7 @@ enum procstate
 };
 
 // Per-process state
-struct proc
-{
+struct proc {
   struct spinlock lock;
 
   // p->lock must be held when using these:

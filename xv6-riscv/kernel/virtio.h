@@ -34,18 +34,18 @@
 
 // status register bits, from qemu virtio_config.h
 #define VIRTIO_CONFIG_S_ACKNOWLEDGE 1
-#define VIRTIO_CONFIG_S_DRIVER      2
-#define VIRTIO_CONFIG_S_DRIVER_OK   4
+#define VIRTIO_CONFIG_S_DRIVER 2
+#define VIRTIO_CONFIG_S_DRIVER_OK 4
 #define VIRTIO_CONFIG_S_FEATURES_OK 8
 
 // device feature bits
-#define VIRTIO_BLK_F_RO             5  /* Disk is read-only */
-#define VIRTIO_BLK_F_SCSI           7  /* Supports scsi command passthru */
-#define VIRTIO_BLK_F_CONFIG_WCE     11 /* Writeback mode available in config */
-#define VIRTIO_BLK_F_MQ             12 /* support more than one vq */
-#define VIRTIO_F_ANY_LAYOUT         27
+#define VIRTIO_BLK_F_RO 5          /* Disk is read-only */
+#define VIRTIO_BLK_F_SCSI 7        /* Supports scsi command passthru */
+#define VIRTIO_BLK_F_CONFIG_WCE 11 /* Writeback mode available in config */
+#define VIRTIO_BLK_F_MQ 12         /* support more than one vq */
+#define VIRTIO_F_ANY_LAYOUT 27
 #define VIRTIO_RING_F_INDIRECT_DESC 28
-#define VIRTIO_RING_F_EVENT_IDX     29
+#define VIRTIO_RING_F_EVENT_IDX 29
 
 // this many virtio descriptors.
 // must be a power of two.
@@ -58,7 +58,7 @@ struct virtq_desc {
   uint16 flags;
   uint16 next;
 };
-#define VRING_DESC_F_NEXT  1 // chained with another descriptor
+#define VRING_DESC_F_NEXT 1  // chained with another descriptor
 #define VRING_DESC_F_WRITE 2 // device writes (vs read)
 
 // the (entire) avail ring, from the spec.
@@ -85,7 +85,7 @@ struct virtq_used {
 // these are specific to virtio block devices, e.g. disks,
 // described in Section 5.2 of the spec.
 
-#define VIRTIO_BLK_T_IN  0 // read the disk
+#define VIRTIO_BLK_T_IN 0  // read the disk
 #define VIRTIO_BLK_T_OUT 1 // write the disk
 
 // the format of the first descriptor in a disk request.

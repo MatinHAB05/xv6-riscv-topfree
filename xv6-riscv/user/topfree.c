@@ -261,7 +261,6 @@ int main(int argc, char *argv[]) {
 
       printf("\t\t");
       if (procs[i].parent.pid < 0) {
-
         print_padded("-", PID_WIDTH);
       } else {
         itoa(procs[i].parent.pid, buf, 10);

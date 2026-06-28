@@ -1,4 +1,3 @@
-// clang-format off
 #include "types.h"
 
 #include "riscv.h"
@@ -16,7 +15,6 @@
 #include "vm.h"
 
 #include "dto/u_proc.h"
-// clang-format on
 
 uint64 read_disk_counter = 0;
 uint64 write_disk_counter = 0;
