@@ -2,9 +2,11 @@
 // driver for qemu's virtio disk device.
 // uses qemu's mmio interface to virtio.
 //
-// qemu ... -drive file=fs.img,if=none,format=raw,id=x0 -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
+// qemu ... -drive file=fs.img,if=none,format=raw,id=x0 -device
+// virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
 //
 
+// clang-format off
 #include "types.h"
 #include "riscv.h"
 #include "defs.h"
@@ -15,12 +17,12 @@
 #include "fs.h"
 #include "buf.h"
 #include "virtio.h"
+// clang-format on
 
 // the address of virtio mmio register r.
 #define R(r) ((volatile uint32 *)(VIRTIO0 + (r)))
 
-static struct disk
-{
+static struct disk {
   // a set (not a ring) of DMA descriptors, with which the
   // driver tells the device where to read and write individual
   // disk operations. there are NUM descriptors.
@@ -46,8 +48,7 @@ static struct disk
   // track info about in-flight operations,
   // for use when completion interrupt arrives.
   // indexed by first descriptor index of chain.
-  struct
-  {
+  struct {
     struct buf *b;
     char status;
   } info[NUM];
@@ -60,16 +61,14 @@ static struct disk
 
 } disk;
 
-void virtio_disk_init(void)
-{
+void virtio_disk_init(void) {
   uint32 status = 0;
 
   initlock(&disk.vdisk_lock, "virtio_disk");
 
   if (*R(VIRTIO_MMIO_MAGIC_VALUE) != 0x74726976 ||
       *R(VIRTIO_MMIO_VERSION) != 2 || *R(VIRTIO_MMIO_DEVICE_ID) != 2 ||
-      *R(VIRTIO_MMIO_VENDOR_ID) != 0x554d4551)
-  {
+      *R(VIRTIO_MMIO_VENDOR_ID) != 0x554d4551) {
     panic("could not find virtio disk");
   }
 
@@ -154,13 +153,9 @@ void virtio_disk_init(void)
 }
 
 // find a free descriptor, mark it non-free, return its index.
-static int
-alloc_desc()
-{
-  for (int i = 0; i < NUM; i++)
-  {
-    if (disk.free[i])
-    {
+static int alloc_desc() {
+  for (int i = 0; i < NUM; i++) {
+    if (disk.free[i]) {
       disk.free[i] = 0;
       return i;
     }
@@ -169,9 +164,7 @@ alloc_desc()
 }
 
 // mark a descriptor as free.
-static void
-free_desc(int i)
-{
+static void free_desc(int i) {
   if (i >= NUM)
     panic("free_desc 1");
   if (disk.free[i])
@@ -185,11 +178,8 @@ free_desc(int i)
 }
 
 // free a chain of descriptors.
-static void
-free_chain(int i)
-{
-  while (1)
-  {
+static void free_chain(int i) {
+  while (1) {
     int flag = disk.desc[i].flags;
     int nxt = disk.desc[i].next;
     free_desc(i);
@@ -202,14 +192,10 @@ free_chain(int i)
 
 // allocate three descriptors (they need not be contiguous).
 // disk transfers always use three descriptors.
-static int
-alloc3_desc(int *idx)
-{
-  for (int i = 0; i < 3; i++)
-  {
+static int alloc3_desc(int *idx) {
+  for (int i = 0; i < 3; i++) {
     idx[i] = alloc_desc();
-    if (idx[i] < 0)
-    {
+    if (idx[i] < 0) {
       for (int j = 0; j < i; j++)
         free_desc(idx[j]);
       return -1;
@@ -218,20 +204,22 @@ alloc3_desc(int *idx)
   return 0;
 }
 
-void virtio_disk_rw(struct buf *b, int write)
-{
+void virtio_disk_rw(struct buf *b, int write) {
   uint64 sector = b->blockno * (BSIZE / 512);
 
   acquire(&disk.vdisk_lock);
 
-  if (write)
-  {
+  if (write) {
     __sync_fetch_and_add(&write_disk_counter, 1);
     // write_disk_counter++;
-  }
-  else
-  {
+    debug_printf(
+        "[DISK] Physical write completed. Hardware disk write count: %d\n",
+        (int)write_disk_counter);
+  } else {
     __sync_fetch_and_add(&read_disk_counter, 1);
+    debug_printf(
+        "[DISK] Physical read completed. Hardware disk read count: %d\n",
+        (int)read_disk_counter);
     // read_disk_counter++;
   }
 
@@ -241,10 +229,8 @@ void virtio_disk_rw(struct buf *b, int write)
 
   // allocate the three descriptors.
   int idx[3];
-  while (1)
-  {
-    if (alloc3_desc(idx) == 0)
-    {
+  while (1) {
+    if (alloc3_desc(idx) == 0) {
       break;
     }
     sleep(&disk.free[0], &disk.vdisk_lock);
@@ -299,8 +285,7 @@ void virtio_disk_rw(struct buf *b, int write)
   *R(VIRTIO_MMIO_QUEUE_NOTIFY) = 0; // value is queue number
 
   // Wait for virtio_disk_intr() to say request has finished.
-  while (b->disk == 1)
-  {
+  while (b->disk == 1) {
     sleep(b, &disk.vdisk_lock);
   }
 
@@ -310,8 +295,7 @@ void virtio_disk_rw(struct buf *b, int write)
   release(&disk.vdisk_lock);
 }
 
-void virtio_disk_intr()
-{
+void virtio_disk_intr() {
   acquire(&disk.vdisk_lock);
 
   // the device won't raise another interrupt until we tell it
@@ -327,8 +311,7 @@ void virtio_disk_intr()
   // the device increments disk.used->idx when it
   // adds an entry to the used ring.
 
-  while (disk.used_idx != disk.used->idx)
-  {
+  while (disk.used_idx != disk.used->idx) {
     __atomic_thread_fence(__ATOMIC_SEQ_CST);
     int id = disk.used->ring[disk.used_idx % NUM].id;
 

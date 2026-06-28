@@ -149,6 +149,7 @@ UPROGS=\
 	$U/_helloworldtest\
 	$U/_top\
 	$U/_clear\
+	$U/_toggle_dbg\
 
 
 fs.img: mkfs/mkfs README $(UPROGS)

@@ -78,6 +78,12 @@ int             pipewrite(struct pipe*, uint64, int);
 int             printf(char*, ...) __attribute__ ((format (printf, 1, 2)));
 void            panic(char*) __attribute__((noreturn));
 void            printfinit(void);
+extern int debug_mode; 
+#define debug_printf(...) do { \
+    if (debug_mode) { \
+        printf(__VA_ARGS__); \
+    } \
+} while(0)
 
 // proc.c
 int             cpuid(void);

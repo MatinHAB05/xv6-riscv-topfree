@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
       .mem_opt = 'p',
       .sort_opt = 'n',
       .time_opt = 's',
-      .pause_duration = 20,
+      .pause_duration = 5,
       .pause_unit = 't' // default raw ticks
   };
 
@@ -149,7 +149,8 @@ int main(int argc, char *argv[]) {
     target_pause_ticks = 1;
 
   // 4. Main Rendering Loop
-  for (int iter = 0; iter < 100 * config.max_iterations; iter++) {
+  for (int iter = 0; iter < config.max_iterations || config.max_iterations == 0;
+       iter++) {
     printf("\033[2J\033[H");
 
     int mem_stats_ok = (getmemstats(&umemstat) == 0);

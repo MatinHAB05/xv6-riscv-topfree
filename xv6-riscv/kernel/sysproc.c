@@ -145,3 +145,13 @@ uint64 sys_getmemstats(void) {
 }
 
 uint64 sys_getc_nb(void) { return consolegetc_nb(); }
+
+uint64 sys_toggle_debug(void) {
+  if (debug_mode == 1) {
+    debug_mode = 0;
+  } else if (debug_mode == 0) {
+    debug_mode = 1;
+  }
+
+  return debug_mode;
+}

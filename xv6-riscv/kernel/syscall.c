@@ -108,6 +108,7 @@ extern uint64 sys_close(void);
 extern uint64 sys_getallprocs(void);
 extern uint64 sys_getmemstats(void);
 extern uint64 sys_getc_nb(void);
+extern uint64 sys_toggle_debug(void);
 
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
@@ -138,6 +139,7 @@ static uint64 (*syscalls[])(void) = {
   [SYS_getallprocs] sys_getallprocs,
   [SYS_getmemstats] sys_getmemstats,
   [SYS_getc_nb]     sys_getc_nb,
+  [SYS_toggle_debug]   sys_toggle_debug,
     // clang-format on
 };
 

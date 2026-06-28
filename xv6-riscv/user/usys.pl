@@ -46,3 +46,4 @@ entry("poweroff");
 entry("getallprocs");
 entry("getmemstats");
 entry("getc_nb");
+entry("toggle_debug");
