@@ -23,3 +23,4 @@
 #define SYS_poweroff 26
 #define SYS_getallprocs 27
 #define SYS_getmemstats 28
+#define SYS_getc_nb      29

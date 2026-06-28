@@ -1,3 +1,4 @@
+CURDIR=.
 start:
 	@echo "\n----------------------------Makefile Begins----------------------------\n"
 	@docker run -it --rm -v $(CURDIR):/home/xv6/xv6-riscv wtakuo/xv6-env \
@@ -10,3 +11,5 @@ start:
 init:
 	@echo "\n----------------------------Makefile Begins----------------------------\n"
 	@docker run -it --rm -v $(CURDIR):/home/xv6/xv6-riscv wtakuo/xv6-env  
+pull:
+	@docker pull wtakuo/xv6-env:latest

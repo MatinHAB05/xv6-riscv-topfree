@@ -45,3 +45,4 @@ entry("uptime");
 entry("poweroff");
 entry("getallprocs");
 entry("getmemstats");
+entry("getc_nb");

@@ -8,22 +8,32 @@
 //   control-d -- end of file
 //   control-p -- print process list
 //
-
+// clang-format off
 #include <stdarg.h>
 
 #include "types.h"
-#include "param.h"
-#include "spinlock.h"
-#include "sleeplock.h"
-#include "fs.h"
-#include "file.h"
-#include "memlayout.h"
-#include "riscv.h"
-#include "defs.h"
-#include "proc.h"
 
-#define BACKSPACE 0x100       // erase the last output character
-#define C(x)      ((x) - '@') // Control-x
+#include "param.h"
+
+#include "spinlock.h"
+
+#include "sleeplock.h"
+
+#include "fs.h"
+
+#include "file.h"
+
+#include "memlayout.h"
+
+#include "riscv.h"
+
+#include "defs.h"
+
+#include "proc.h"
+// clang-format on
+
+#define BACKSPACE 0x100  // erase the last output character
+#define C(x) ((x) - '@') // Control-x
 
 //
 // send one character to the uart, but don't use
@@ -31,9 +41,7 @@
 // interrupts, e.g. by printf and to echo input
 // characters.
 //
-void
-consputc(int c)
-{
+void consputc(int c) {
   if (c == BACKSPACE) {
     // if the user typed backspace, overwrite with a space.
     uartputc_sync('\b');
@@ -59,9 +67,7 @@ struct {
 // user write() system calls to the console go here.
 // uses sleep() and UART interrupts.
 //
-int
-consolewrite(int user_src, uint64 src, int n)
-{
+int consolewrite(int user_src, uint64 src, int n) {
   char buf[32]; // move batches from user space to uart.
   int i = 0;
 
@@ -84,9 +90,7 @@ consolewrite(int user_src, uint64 src, int n)
 // user_dst indicates whether dst is a user
 // or kernel address.
 //
-int
-consoleread(int user_dst, uint64 dst, int n)
-{
+int consoleread(int user_dst, uint64 dst, int n) {
   uint target;
   int c;
   char cbuf;
@@ -140,9 +144,7 @@ consoleread(int user_dst, uint64 dst, int n)
 // do erase/kill processing, append to cons.buf,
 // wake up consoleread() if a whole line has arrived.
 //
-void
-consoleintr(int c)
-{
+void consoleintr(int c) {
   acquire(&cons.lock);
 
   switch (c) {
@@ -186,9 +188,7 @@ consoleintr(int c)
   release(&cons.lock);
 }
 
-void
-consoleinit(void)
-{
+void consoleinit(void) {
   initlock(&cons.lock, "cons");
 
   uartinit();
@@ -197,4 +197,19 @@ consoleinit(void)
   // to consoleread and consolewrite.
   devsw[CONSOLE].read = consoleread;
   devsw[CONSOLE].write = consolewrite;
+}
+
+int consolegetc_nb(void) {
+  int c = -1;
+  acquire(&cons.lock);
+
+  if (cons.r != cons.e) {
+    c = cons.buf[cons.r % INPUT_BUF_SIZE];
+    cons.r++;
+
+    if (cons.w < cons.r)
+      cons.w = cons.r;
+  }
+  release(&cons.lock);
+  return c;
 }

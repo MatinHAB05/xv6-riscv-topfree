@@ -22,6 +22,7 @@ void            bunpin(struct buf*);
 void            consoleinit(void);
 void            consoleintr(int);
 void            consputc(int);
+int             consolegetc_nb(void);
 
 // exec.c
 int             kexec(char*, char**);

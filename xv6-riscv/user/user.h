@@ -54,3 +54,4 @@ void free(void *);
 
 void reverse(char *str, int len);
 char *itoa(int value, char *str, int base);
+int getc_nb(void);
